@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NFT Market — Spotify Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Circular+Std:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="mm-banner">🦊 Bạn chưa cài MetaMask! <a href="https://metamask.io/download/" target="_blank" style="color:#f6851b;font-weight:700;margin-left:6px">Tải tại đây ↗</a></div>
+<div id="chain-warn">⚠️ Sai mạng! Vui lòng chuyển sang <strong>Hardhat Localhost (31337)</strong> hoặc <strong>Sepolia</strong> trong MetaMask.</div>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="logo">
+    <svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+    NFT Market
+  </div>
+  <div class="search-wrap">
+    <svg class="ico" viewBox="0 0 24 24"><path d="M10.533 1.279c-5.18 0-9.407 4.927-9.407 9.808 0 4.907 4.227 9.814 9.407 9.814 2.196 0 4.232-.818 5.835-2.16l3.348 3.347 1.528-1.528-3.348-3.347A9.706 9.706 0 0 0 19.94 11.1c0-4.881-4.226-9.82-9.407-9.82zm0 2c4.081 0 7.407 3.2 7.407 7.82 0 4.632-3.326 7.814-7.407 7.814-4.081 0-7.407-3.182-7.407-7.814 0-4.62 3.326-7.82 7.407-7.82z"/></svg>
+    <input id="search-inp" type="text" placeholder="Tìm NFT, artist..." oninput="renderAll()"/>
+  </div>
+  <div class="nav-right">
+    <button class="btn-ghost" onclick="openModal('modal-register')">Đăng ký</button>
+    <button class="btn-white" id="btn-connect" onclick="connectWallet()">🦊 Connect Wallet</button>
+    <div class="wallet-badge" id="wallet-badge" onclick="copyAddr()">
+      <div class="dot"></div>
+      <span class="network-tag" id="net-tag">—</span>
+      <span class="addr" id="wallet-addr">0x…</span>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div id="layout">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sidebar-section">
+      <div class="slink active" onclick="showPage('marketplace')">
+        <svg viewBox="0 0 24 24"><path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 0 1 3 0l7.5 4.33a2 2 0 0 1 1 1.732V21a1 1 0 0 1-1 1H14a1 1 0 0 1-1-1v-6h-2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7.577a2 2 0 0 1 1-1.732l7.5-4.33z"/></svg>
+        Trang chủ
+      </div>
+      <div class="slink" onclick="showPage('search-page')">
+        <svg viewBox="0 0 24 24"><path d="M10.533 1.279c-5.18 0-9.407 4.927-9.407 9.808 0 4.907 4.227 9.814 9.407 9.814 2.196 0 4.232-.818 5.835-2.16l3.348 3.347 1.528-1.528-3.348-3.347A9.706 9.706 0 0 0 19.94 11.1c0-4.881-4.226-9.82-9.407-9.82zm0 2c4.081 0 7.407 3.2 7.407 7.82 0 4.632-3.326 7.814-7.407 7.814-4.081 0-7.407-3.182-7.407-7.814 0-4.62 3.326-7.82 7.407-7.82z"/></svg>
+        Tìm kiếm
+      </div>
+    </div>
+    <div class="sidebar-section" style="flex:1;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0 6px;margin-bottom:10px">
+        <h3 style="margin:0">Thư viện</h3>
+        <div class="slink-add" onclick="openModal('modal-mint')" title="Mint NFT mới">+</div>
+      </div>
+      <div class="slink" onclick="showPage('my-nfts')">
+        <svg viewBox="0 0 24 24"><path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1.5.866l7-4a1 1 0 0 0 0-1.732l-7-4zM7 2a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H7z"/></svg>
+        NFT của tôi
+      </div>
+      <div class="slink" onclick="showPage('history')">
+        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3zM1 12C1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11S1 18.075 1 12zm11-5.5a1 1 0 0 1 1 1V12h3a1 1 0 1 1 0 2h-4a1 1 0 0 1-1-1V7.5a1 1 0 0 1 1-1z"/></svg>
+        Lịch sử TX
+      </div>
+      <div class="slink" onclick="showPage('users')">
+        <svg viewBox="0 0 24 24"><path d="M17.5 14c2.485 0 4.5 2.015 4.5 4.5S19.985 23 17.5 23 13 20.985 13 18.5s2.015-4.5 4.5-4.5zM9 2c2.761 0 5 2.239 5 5s-2.239 5-5 5-5-2.239-5-5 2.239-5 5-5zM0 20c0-3.314 4.03-6 9-6 .523 0 1.037.033 1.537.096a6.46 6.46 0 0 0-.537 2.584V20H0zm17.5-4c-.69 0-1.25.56-1.25 1.25V18.5h-1.25a1.25 1.25 0 1 0 0 2.5h1.25v1.25a1.25 1.25 0 1 0 2.5 0V21h1.25a1.25 1.25 0 1 0 0-2.5H20v-1.25c0-.69-.56-1.25-1.25-1.25h-1.25z"/></svg>
+        Users
+      </div>
+      <div style="margin-top:12px;border-top:1px solid #333;padding-top:12px">
+        <div id="sidebar-nft-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+    <!-- MARKETPLACE -->
+    <div id="page-marketplace" class="page">
+      <div class="main-topbar">
+        <button class="pill active" onclick="setPill(this,'all')">Tất cả</button>
+        <button class="pill" onclick="setPill(this,'ForSale')">Đang bán</button>
+        <button class="pill" onclick="setPill(this,'Minted')">Đã mint</button>
+        <button class="pill" onclick="setPill(this,'Sold')">Đã bán</button>
+      </div>
+      <div class="hero-gradient">
+        <h1>NFT Marketplace</h1>
+        <p>Mint · Bán · Mua NFT với MetaMask Localhost</p>
+      </div>
+      <div class="content-area">
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">Tổng NFT</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-listed">0</div><div class="stat-lbl">Đang bán</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-tx">0</div><div class="stat-lbl">Giao dịch</div></div>
+        </div>
+        <div class="section-head"><h2>🔥 Tất cả NFT</h2><span class="show-all" onclick="setPill(document.querySelector('.pill'),'ForSale')">Chỉ đang bán</span></div>
+        <div class="card-grid" id="nft-grid"></div>
+        <div class="section-head"><h2>🎤 Artists nổi bật</h2></div>
+        <div class="card-grid" id="artist-grid"></div>
+      </div>
+    </div>
+
+    <!-- MY NFTS -->
+    <div id="page-my-nfts" class="page" style="display:none">
+      <div style="padding:24px">
+        <h2 style="font-size:24px;font-weight:700;margin-bottom:16px">NFT của tôi</h2>
+        <div class="card-grid" id="my-nft-grid"></div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div id="page-history" class="page" style="display:none">
+      <div style="padding:24px">
+        <h2 style="font-size:24px;font-weight:700;margin-bottom:16px">Lịch sử giao dịch</h2>
+        <div id="tx-list"></div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div id="page-users" class="page" style="display:none">
+      <div style="padding:24px">
+        <h2 style="font-size:24px;font-weight:700;margin-bottom:16px">Danh sách người dùng</h2>
+        <div id="user-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NOW PLAYING BAR -->
+<div id="now-bar">
+  <div class="nb-left">
+    <div class="nb-thumb" id="nb-thumb">🎵</div>
+    <div class="nb-info">
+      <div class="nb-name" id="nb-name">Chưa phát NFT nào</div>
+      <div class="nb-artist" id="nb-artist">—</div>
+    </div>
+    <button class="nb-heart" id="nb-heart" onclick="toggleHeart()">♡</button>
+  </div>
+  <div class="nb-center">
+    <div class="nb-controls">
+      <button class="nb-btn" onclick="prevTrack()"><svg viewBox="0 0 24 24"><path d="M17.808 1.37a1 1 0 0 1 .5.866V21.764a1 1 0 0 1-1.5.866L6.143 16.5l-.143-.083V22a1 1 0 0 1-2 0V2a1 1 0 0 1 2 0v5.583l.143-.083 10.665-6.13a1 1 0 0 1 1-.001zm-2 3.464L7.975 10l7.833 4.764V4.834z"/></svg></button>
+      <button class="nb-play" id="nb-play-btn" onclick="togglePlay()"><svg id="nb-play-ico" viewBox="0 0 24 24"><path d="M7.05 3.606l13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"/></svg></button>
+      <button class="nb-btn" onclick="nextTrack()"><svg viewBox="0 0 24 24"><path d="M17.7 2a1 1 0 0 1 1 1v18a1 1 0 1 1-2 0v-5.583l-.143.083-10.65 6.13a1 1 0 0 1-1.5-.866V3.235a1 1 0 0 1 1.5-.866l10.65 6.13.143.083V3a1 1 0 0 1 1-.001zM7.408 5.013V18.99L15.233 12 7.408 5.013z"/></svg></button>
+    </div>
+    <div class="nb-progress">
+      <span class="nb-time" id="nb-cur">0:00</span>
+      <div class="progress-bar" onclick="seekTrack(event)">
+        <div class="progress-fill" id="nb-prog" style="width:0%"></div>
+      </div>
+      <span class="nb-time" id="nb-dur">0:00</span>
+    </div>
+  </div>
+  <div class="nb-right">
+    <button class="nb-btn"><svg viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 3v9.28a4.39 4.39 0 0 0-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/></svg></button>
+    <button class="nb-btn" onclick="toggleMute()">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M13 3.53a9 9 0 0 1 0 16.94v-2.075a7 7 0 0 0 0-12.79V3.53zM12 2.002a1 1 0 0 0-.677.26L6.318 6.878H3a1 1 0 0 0-1 1v8.244a1 1 0 0 0 1 1h3.318l5.005 4.614A1 1 0 0 0 13 20.998V3.002a1 1 0 0 0-1-.999zM16.293 8.293l1.414 1.414L19 8.414l1.293 1.293 1.414-1.414L20.414 7l1.293-1.293-1.414-1.414L19 5.586l-1.293-1.293-1.414 1.414L17.586 7l-1.293 1.293z"/></svg>
+    </button>
+    <div class="vol-bar" onclick="setVol(event)"><div class="vol-fill" id="vol-fill"></div></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ═══ MODALS ═══ -->
+  <!-- Register Modal -->
+  <div class="overlay" id="modal-register">
+    <div class="modal" style="position:relative">
+      <button class="modal-close" onclick="closeModal('modal-register')">✕</button>
+      <h3>👤 Đăng ký hồ sơ</h3>
+      <p class="modal-sub">Địa chỉ ví MetaMask tự động điền. Đăng ký lại = cập nhật.</p>
+      <div class="alert alert-ok" id="reg-ok"></div>
+      <div class="alert alert-err" id="reg-err"></div>
+      <div class="form-row">
+        <label class="form-lbl">Địa chỉ ví (MetaMask)</label>
+        <input class="form-inp" id="reg-addr" readonly/>
+      </div>
+      <div class="form-row">
+        <label class="form-lbl">Tên người dùng *</label>
+        <input class="form-inp" id="reg-name" placeholder="VD: CryptoArtist_88"/>
+      </div>
+      <div class="form-row">
+        <label class="form-lbl">Vai trò *</label>
+        <div class="role-grid">
+          <div class="role-opt"><input type="radio" name="r-role" id="r-buyer" value="Buyer"/><label for="r-buyer"><span class="r-icon">🛒</span>Buyer<br><small style="color:var(--muted);font-weight:400">Mua NFT</small></label></div>
+          <div class="role-opt"><input type="radio" name="r-role" id="r-seller" value="Seller"/><label for="r-seller"><span class="r-icon">🎨</span>Seller<br><small style="color:var(--muted);font-weight:400">Mint & bán</small></label></div>
+          <div class="role-opt"><input type="radio" name="r-role" id="r-both" value="Both" checked/><label for="r-both"><span class="r-icon">⚡</span>Both<br><small style="color:var(--muted);font-weight:400">Mua & bán</small></label></div>
+        </div>
+      </div>
+      <button class="btn-green-full" onclick="handleRegister()">✅ Đăng ký / Cập nhật</button>
+      <button
+        id="btn-delete-acc"
+        onclick="handleDeleteMyAccount()"
+        style="width:100%;margin-top:8px;background:transparent;border:1px solid #c0392b;color:#fca5a5;border-radius:20px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;display:none"
+      >🗑️ Xóa tài khoản của tôi</button>
+    </div>
+  </div>
+<!-- ══════════════════════════════════════
+     MINT MODAL — dùng upload ảnh thay emoji
+════════════════════════════════════════ -->
+<div class="overlay" id="modal-mint">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('modal-mint')">✕</button>
+    <h3>✨ Mint NFT mới</h3>
+    <p class="modal-sub">Cần vai trò Seller hoặc Both. Gas fee sẽ bị trừ từ MetaMask.</p>
+    <div class="alert alert-err" id="mint-err"></div>
+    <div class="alert alert-info" id="mint-info"></div>
+
+    <!-- ── ẢNH ĐẠI DIỆN NFT ── -->
+    <div class="form-row">
+      <label class="form-lbl">Ảnh đại diện NFT *</label>
+      <div class="nft-img-upload-wrap" onclick="document.getElementById('mint-img-file').click()">
+        <div class="nft-img-preview" id="mint-img-preview">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" style="color:#555">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+          <span style="font-size:12px;color:#666;margin-top:6px">Click để chọn ảnh</span>
+        </div>
+        <input type="file" id="mint-img-file" accept="image/*" onchange="onNFTImageFile(event)" style="display:none"/>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label class="form-lbl">Tên NFT *</label>
+      <input class="form-inp" id="mint-name" placeholder="VD: Cosmic Dragon #001"/>
+    </div>
+    <div class="form-row">
+      <label class="form-lbl">Mô tả</label>
+      <input class="form-inp" id="mint-desc" placeholder="Mô tả ngắn..."/>
+    </div>
+
+    <!-- ── FILE NHẠC / VIDEO ── -->
+    <div class="form-row">
+      <label class="form-lbl">Upload file nhạc hoặc video (MP3, MP4, WAV...)</label>
+      <div class="file-drop" onclick="document.getElementById('mint-audio').click()">
+        <div class="file-drop-icon">📁</div>
+        <div class="file-drop-text">Click để chọn file nhạc hoặc video</div>
+        <div class="file-name" id="audio-fname"></div>
+        <input type="file" id="mint-audio" accept="audio/*,video/mp4" onchange="onAudioFile(event)" style="display:none"/>
+      </div>
+      <div class="track-preview" id="track-preview" style="display:none;flex-direction:column;gap:10px;">
+        <div id="preview-container" style="width:100%"></div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label class="form-lbl">Đặt giá bán ngay (ETH, 0 = chỉ mint)</label>
+      <input class="form-inp" id="mint-price" type="number" min="0" step="0.001" placeholder="0"/>
+    </div>
+    <button class="btn-green-full" id="mint-btn" onclick="handleMint()">⚡ Mint NFT</button>
+  </div>
+</div>
+
+<!-- NFT Detail Modal -->
+<div class="overlay" id="modal-nft">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('modal-nft')">✕</button>
+    <div id="nft-modal-body"></div>
+  </div>
+</div>
+
+<!-- TX Confirm Modal -->
+<div class="overlay" id="modal-tx">
+  <div class="modal" style="position:relative;text-align:center">
+    <div style="font-size:48px;margin-bottom:12px" id="tx-icon">⏳</div>
+    <h3 id="tx-title">Đang xử lý...</h3>
+    <p class="modal-sub" id="tx-sub">Vui lòng xác nhận trên MetaMask</p>
+    <div id="tx-detail" style="background:#1e1e1e;border-radius:8px;padding:14px;margin:12px 0;text-align:left;font-size:12px;line-height:1.8;display:none"></div>
+    <button class="btn-green-full" id="tx-close-btn" style="display:none" onclick="closeModal('modal-tx')">Đóng</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+<script src="scripts.js"></script>
+
+<!-- CSS bổ sung cho ảnh upload NFT -->
+</body>
+</html>
